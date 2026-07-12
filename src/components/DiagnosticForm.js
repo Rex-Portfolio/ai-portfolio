@@ -115,7 +115,7 @@ export default function DiagnosticForm() {
         {loading && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
             <div className="h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-            <p className="text-sm text-dark-muted">Analysing your workflow...</p>
+            <p className="text-sm text-dark-muted">Analysing your problem...</p>
           </div>
         )}
 

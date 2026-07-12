@@ -86,7 +86,7 @@ export default function DiagnosticForm() {
 
         <div>
           <label htmlFor="problem" className="mb-1.5 block text-sm font-medium text-dark-text">
-            Describe the workflow
+            Describe a problem
           </label>
           <textarea
             id="problem"
@@ -95,7 +95,7 @@ export default function DiagnosticForm() {
             rows={4}
             value={form.problem}
             onChange={handleChange}
-            placeholder="What does the team do manually today? Where do handoffs break down?"
+            placeholder="e.g. Our finance team manually compiles reports from 5 systems every month. It takes 3 people about a week, and errors slip through."
             className={`${inputClassName} resize-none`}
           />
         </div>
@@ -125,7 +125,7 @@ export default function DiagnosticForm() {
               Assessment results
             </p>
             <p className="mt-2 text-sm leading-relaxed text-dark-muted">
-              Submit a workflow to receive a structured transformation assessment.
+              Submit a problem to receive a structured assessment.
             </p>
           </div>
         )}
@@ -133,19 +133,24 @@ export default function DiagnosticForm() {
         {!loading && result && (
           <div className="space-y-5 overflow-y-auto">
             <div>
-              <h3 className="section-label section-label-dark">Verdict</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">{result.verdict}</p>
+              <h3 className="section-label section-label-dark">The Real Problem</h3>
+              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">
+                {result.realProblem}
+              </p>
             </div>
 
             <div>
-              <h3 className="section-label section-label-dark">Approach</h3>
+              <h3 className="section-label section-label-dark">Recommended Approach</h3>
               <p className="mt-2 text-sm leading-relaxed text-dark-text/90">{result.approach}</p>
             </div>
 
             <div>
-              <h3 className="section-label section-label-dark">Opportunities</h3>
+              <h3 className="section-label section-label-dark">Where to Start</h3>
+              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">
+                {result.startHere.lead}
+              </p>
               <ul className="mt-3 space-y-2.5">
-                {result.opportunities.map((item, index) => (
+                {result.startHere.opportunities.map((item, index) => (
                   <li
                     key={index}
                     className="rounded-xl border border-dark-border bg-dark-bg p-4"
@@ -161,24 +166,13 @@ export default function DiagnosticForm() {
               </ul>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-dark-border bg-dark-bg p-4">
-                <h3 className="section-label section-label-dark">Quick win</h3>
-                <p className="mt-2 text-sm leading-relaxed text-dark-text/90">
-                  {result.quickWin}
-                </p>
-              </div>
-              <div className="rounded-xl border border-dark-border bg-dark-bg p-4">
-                <h3 className="section-label section-label-dark">Impact</h3>
-                <p className="mt-2 text-sm leading-relaxed text-dark-text/90">{result.impact}</p>
-              </div>
-            </div>
-
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
               <h3 className="text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-amber-300">
-                Watch-out
+                Considerations
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-amber-100/90">{result.watchout}</p>
+              <p className="mt-2 text-sm leading-relaxed text-amber-100/90">
+                {result.considerations}
+              </p>
             </div>
           </div>
         )}

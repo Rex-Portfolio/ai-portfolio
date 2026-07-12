@@ -86,7 +86,8 @@ export async function POST(request) {
     if (
       message.includes("not valid JSON") ||
       message.includes("missing or invalid") ||
-      message.includes("invalid opportunity")
+      message.includes("invalid opportunity") ||
+      message.includes("startHere")
     ) {
       return NextResponse.json(
         { error: "Failed to parse model response", detail: message },

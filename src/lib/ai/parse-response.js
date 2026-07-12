@@ -1,13 +1,46 @@
 /**
  * @typedef {{
- *   verdict: string;
+ *   realProblem: string;
  *   approach: string;
- *   opportunities: Array<{ title: string; detail: string }>;
- *   quickWin: string;
- *   impact: string;
- *   watchout: string;
+ *   startHere: {
+ *     lead: string;
+ *     opportunities: Array<{ title: string; detail: string }>;
+ *   };
+ *   considerations: string;
  * }} DiagnosisResult
  */
+
+/**
+ * @param {string} text
+ * @returns {string}
+ */
+function stripEmDashes(text) {
+  return text
+    .replace(/\s*—\s*/g, ", ")
+    .replace(/—/g, ", ")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * @param {DiagnosisResult} result
+ * @returns {DiagnosisResult}
+ */
+function sanitizeDiagnosisResult(result) {
+  return {
+    realProblem: stripEmDashes(result.realProblem),
+    approach: stripEmDashes(result.approach),
+    startHere: {
+      lead: stripEmDashes(result.startHere.lead),
+      opportunities: result.startHere.opportunities.map((item) => ({
+        title: stripEmDashes(item.title),
+        detail: stripEmDashes(item.detail),
+      })),
+    },
+    considerations: stripEmDashes(result.considerations),
+  };
+}
 
 /**
  * @param {string} text
@@ -28,7 +61,7 @@ export function parseDiagnosisResponse(text) {
   }
 
   validateDiagnosisResult(parsed);
-  return parsed;
+  return sanitizeDiagnosisResult(parsed);
 }
 
 /**
@@ -41,7 +74,7 @@ function validateDiagnosisResult(value) {
   }
 
   const result = /** @type {Record<string, unknown>} */ (value);
-  const requiredStrings = ["verdict", "approach", "quickWin", "impact", "watchout"];
+  const requiredStrings = ["realProblem", "approach", "considerations"];
 
   for (const field of requiredStrings) {
     if (typeof result[field] !== "string" || !result[field].trim()) {
@@ -49,11 +82,21 @@ function validateDiagnosisResult(value) {
     }
   }
 
-  if (!Array.isArray(result.opportunities) || result.opportunities.length === 0) {
-    throw new Error("Model response missing or invalid field: opportunities");
+  if (!result.startHere || typeof result.startHere !== "object") {
+    throw new Error("Model response missing or invalid field: startHere");
   }
 
-  for (const item of result.opportunities) {
+  const startHere = /** @type {Record<string, unknown>} */ (result.startHere);
+
+  if (typeof startHere.lead !== "string" || !startHere.lead.trim()) {
+    throw new Error("Model response missing or invalid field: startHere.lead");
+  }
+
+  if (!Array.isArray(startHere.opportunities) || startHere.opportunities.length !== 3) {
+    throw new Error("Model response missing or invalid field: startHere.opportunities");
+  }
+
+  for (const item of startHere.opportunities) {
     if (
       !item ||
       typeof item !== "object" ||

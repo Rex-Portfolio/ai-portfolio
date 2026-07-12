@@ -8,9 +8,9 @@ const EMAIL = "rexmondlim7@gmail.com";
 
 const stats = [
   {
-    label: "Reporting turnaround",
-    before: "1 week",
-    after: "10 mins",
+    label: "Credit underwriting",
+    before: "Half a day",
+    after: "2 mins",
   },
   {
     label: "Customer onboarding",
@@ -18,14 +18,15 @@ const stats = [
     after: "90 secs",
   },
   {
-    label: "Credit underwriting",
-    before: "Half a day",
-    after: "2 mins",
-  },
-  {
     label: "Operational cost",
     before: "Baseline",
     after: "96% lower",
+    beforeMuted: true,
+  },
+  {
+    label: "Reporting turnaround",
+    before: "1 week",
+    after: "10 mins",
   },
 ];
 
@@ -147,13 +148,13 @@ export default function Home() {
           <p className="section-label section-label-dark mt-4 sm:mt-5">
             AI & Business Transformation
           </p>
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-dark-muted sm:mx-0 sm:mt-6 sm:text-xl">
+          <p className="mx-auto mt-5 max-w-[20.5rem] text-[0.9375rem] leading-[1.6] text-balance text-dark-muted sm:mx-0 sm:mt-6 sm:max-w-xl sm:text-xl sm:leading-relaxed sm:text-pretty">
             I bridge strategy and hands-on AI delivery, helping teams replace manual
-            workflows with systems that deliver measurable results.
+            workflows with systems that deliver{"\u00A0"}measurable{"\u00A0"}results.
           </p>
-          <p className="mx-auto mt-4 max-w-md text-base italic leading-relaxed text-dark-muted/75 sm:mx-0 sm:max-w-lg">
-            Somewhere along the way I stopped waiting for engineers and started building
-            myself. In a team of three, you figure it out.
+          <p className="mx-auto mt-4 max-w-[21.5rem] text-sm leading-[1.6] text-balance text-dark-muted/80 sm:mx-0 sm:max-w-lg sm:text-[0.9375rem] sm:leading-relaxed sm:text-pretty">
+            I learned to build because I had to. In a small team, you do not
+            wait{"\u00A0"}for{"\u00A0"}engineering bandwidth. You{"\u00A0"}figure{"\u00A0"}it{"\u00A0"}out.
           </p>
           <div className="mx-auto mt-6 flex w-full max-w-sm flex-col gap-2.5 sm:mx-0 sm:mt-10 sm:max-w-none sm:flex-row sm:gap-4">
             <a
@@ -184,11 +185,21 @@ export default function Home() {
               <div key={stat.label} className="stats-item">
                 <p className="stats-label">{stat.label}</p>
                 <div className="stats-contrast">
-                  <span className="stats-before">{stat.before}</span>
+                  <div className="stats-was">
+                    <span className="stats-micro-label">Was</span>
+                    <span
+                      className={`stats-before${stat.beforeMuted ? " stats-before-muted" : ""}`}
+                    >
+                      {stat.before}
+                    </span>
+                  </div>
                   <span className="stats-arrow" aria-hidden="true">
                     →
                   </span>
-                  <span className="stats-after">{stat.after}</span>
+                  <div className="stats-now">
+                    <span className="stats-micro-label">Now</span>
+                    <span className="stats-after">{stat.after}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -260,8 +271,8 @@ export default function Home() {
             dark
             label="Interactive"
             title="Live Demo: AI Transformation Diagnostic"
-            description="Describe a real business workflow and get a structured assessment. Same approach I use with clients."
-            supporting="Every assessment is generated transparently, with reasoning you can trace, not a black-box score."
+            description="Describe a real business problem and get a structured assessment. The same approach I use with clients."
+            supporting="Every assessment shows its reasoning step by step. No black-box scoring."
           />
           <DiagnosticForm />
         </div>

@@ -238,26 +238,28 @@ export default function Home() {
           />
           <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, index) => (
-              <AnimatedReveal key={project.title} delay={index * 0.05} className="h-full">
-                <article className="card-surface flex h-full flex-col p-7">
-                  <div className="flex flex-1 flex-col">
-                    <h3 className="font-heading min-h-[2.75rem] text-lg font-semibold tracking-tight text-foreground">
-                      {project.title}
-                    </h3>
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted sm:text-[0.9375rem]">
-                      {project.description}
-                    </p>
-                  </div>
-                  <div className="mt-6">
-                    <p className="section-label">Tools</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-foreground/80">
-                      {project.tools}
-                    </p>
-                    <p className="mt-4 border-t border-border pt-4 text-sm font-medium leading-relaxed text-foreground">
-                      {project.result}
-                    </p>
-                  </div>
-                </article>
+              <AnimatedReveal
+                key={project.title}
+                delay={index * 0.05}
+                className="card-surface flex h-full flex-col p-7"
+              >
+                <div className="sm:min-h-[10.5rem] lg:min-h-[10rem]">
+                  <h3 className="font-heading min-h-[2.75rem] text-lg font-semibold tracking-tight text-foreground sm:min-h-[3.5rem] lg:min-h-[4.125rem]">
+                    {project.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted sm:min-h-[4.75rem] sm:text-[0.9375rem] lg:min-h-[5.25rem]">
+                    {project.description}
+                  </p>
+                </div>
+                <div className="mt-6 shrink-0">
+                  <p className="section-label">Tools</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-foreground/80">
+                    {project.tools}
+                  </p>
+                </div>
+                <p className="mt-auto shrink-0 border-t border-border pt-4 text-sm font-medium leading-relaxed text-foreground">
+                  {project.result}
+                </p>
               </AnimatedReveal>
             ))}
           </div>

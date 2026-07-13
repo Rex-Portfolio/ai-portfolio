@@ -13,9 +13,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://rexmondlim.com"),
   title: "Rexmond Lim | AI & Business Transformation",
   description:
     "Portfolio of Rexmond Lim. Strategy and hands-on AI delivery for business transformation.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({

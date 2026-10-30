@@ -3,7 +3,8 @@ import { SYSTEM_PROMPT, buildDiagnosisPrompt } from "./prompt.js";
 
 // Haiku keeps each run to a fraction of a cent. Set AI_MODEL (e.g. claude-sonnet-5-5) for deeper answers.
 const MODEL = process.env.AI_MODEL || "claude-haiku-5-5";
-const MAX_TOKENS = 2000;
+// Room for the full sectioned answer; the prompt keeps each section short.
+const MAX_TOKENS = 4000;
 
 /**
  * @typedef {import("./prompt.js").DiagnosisInput} DiagnosisInput

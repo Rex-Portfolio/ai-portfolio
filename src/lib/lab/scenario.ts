@@ -191,9 +191,144 @@ export const interventions: Intervention[] = [
   },
 ];
 
+// ---------- Land the change ----------
+
+export type StakeholderId = "dana" | "team" | "cfo";
+
+export type Stakeholder = {
+  id: StakeholderId;
+  name: string;
+  role: string;
+  quote: string;
+  /** Labels for resisting / neutral / on board. */
+  states: [string, string, string];
+  /** How much this person's buy-in drives adoption. */
+  weight: number;
+};
+
+export const stakeholders: Stakeholder[] = [
+  {
+    id: "dana",
+    name: "Dana",
+    role: "Ops lead, 12 years",
+    quote: "We tried a redesign in 2022. It made things worse.",
+    states: ["Resisting", "Curious", "On board"],
+    weight: 25,
+  },
+  {
+    id: "team",
+    name: "Order team",
+    role: "40 people",
+    quote: "Integration means layoffs. Everyone knows it.",
+    states: ["Anxious", "Wary", "On board"],
+    weight: 20,
+  },
+  {
+    id: "cfo",
+    name: "CFO",
+    role: "Holds the budget",
+    quote: "Show me it works before I fund the rest.",
+    states: ["Sceptical", "Listening", "On board"],
+    weight: 15,
+  },
+];
+
+export type ChangeMove = {
+  id: string;
+  title: string;
+  hint: string;
+  effect: Partial<Record<StakeholderId, number>>;
+  /** Adoption lost later (compliance without commitment). */
+  fade?: number;
+  lesson: string;
+  good: boolean;
+};
+
+export const changeCapacity = 2;
+
+export const changeMoves: ChangeMove[] = [
+  {
+    id: "codesign",
+    title: "Co-design it with Dana as process owner",
+    hint: "Make the loudest sceptic the owner.",
+    effect: { dana: 3, team: 1 },
+    lesson: "The person who knows where the bodies are buried now owns the fix. Her credibility carries the team.",
+    good: true,
+  },
+  {
+    id: "pilot",
+    title: "Pilot one product line, publish weekly numbers",
+    hint: "Let results do the persuading.",
+    effect: { cfo: 3, dana: 1 },
+    lesson: "A small, visible win beats a big promise. The numbers made the case for the rest of the rollout.",
+    good: true,
+  },
+  {
+    id: "commit",
+    title: "Commit publicly: freed time goes to customers, not redundancies",
+    hint: "Name the fear out loud.",
+    effect: { team: 3 },
+    lesson: "People resist what they think change will do to them. Removing the threat removed most of the resistance.",
+    good: true,
+  },
+  {
+    id: "mandate",
+    title: "CEO mandate: \"This is happening\"",
+    hint: "Fast, top-down.",
+    effect: { dana: 1, team: 1, cfo: 1 },
+    fade: 15,
+    lesson: "You got compliance, not commitment. Usage looked fine for a month, then the workarounds came back.",
+    good: false,
+  },
+  {
+    id: "email",
+    title: "Email the new SOP and run an all-hands",
+    hint: "Tell everyone clearly.",
+    effect: {},
+    lesson: "Communication isn't change management. Nobody's mind changed because of a slide.",
+    good: false,
+  },
+  {
+    id: "bigbang",
+    title: "Big-bang go-live Monday, mandatory training",
+    hint: "Rip the plaster off.",
+    effect: { dana: -1, team: -1, cfo: -1 },
+    lesson: "Everything changed at once and nothing had been proven. The first bad week became the story.",
+    good: false,
+  },
+];
+
+/** Stakeholder stance after the chosen moves: 0 resisting, 1 neutral, 2 on board. */
+export function stances(moves: string[]): Record<StakeholderId, 0 | 1 | 2> {
+  const out = {} as Record<StakeholderId, 0 | 1 | 2>;
+  for (const s of stakeholders) {
+    const v = changeMoves
+      .filter((m) => moves.includes(m.id))
+      .reduce((sum, m) => sum + (m.effect[s.id] ?? 0), -1);
+    out[s.id] = v >= 1 ? 2 : v === 0 ? 1 : 0;
+  }
+  return out;
+}
+
+/** Share of people actually working the new way (%). */
+export function adoption(moves: string[]): number {
+  const st = stances(moves);
+  let total = 30;
+  for (const s of stakeholders) total += st[s.id] === 2 ? s.weight : st[s.id] === 1 ? s.weight * 0.4 : 0;
+  total -= changeMoves.filter((m) => moves.includes(m.id)).reduce((sum, m) => sum + (m.fade ?? 0), 0);
+  return Math.max(10, Math.min(95, Math.round(total)));
+}
+
+/** Above this adoption the change sticks and the full benefit lands. */
+export const ADOPTION_STICKS = 75;
+
+// ---------- Outcome ----------
+
 export type Outcome = {
   after: Metrics;
+  adoption: number;
   notes: { id: string; title: string; lesson: string; tone: "good" | "bad" | "warn" }[];
+  changeNotes: { id: string; title: string; lesson: string; good: boolean }[];
   score: number;
   verdict: string;
   roadmap: Record<Phase, string[]>;
@@ -202,10 +337,13 @@ export type Outcome = {
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
-/** Apply the chosen interventions to the starting metrics. */
-export function simulate(selected: string[], foundRoot: boolean): Outcome {
+/** Apply the chosen interventions and change moves to the starting metrics. */
+export function simulate(selected: string[], foundRoot: boolean, moves: string[] = []): Outcome {
   const chosen = interventions.filter((i) => selected.includes(i.id));
   const redesigned = selected.includes("redesign");
+  const adopted = adoption(moves);
+  // A solution nobody uses delivers nothing: gains scale with adoption until the change sticks.
+  const realised = Math.min(1, adopted / ADOPTION_STICKS);
   const after: Metrics = { ...company.start };
   const notes: Outcome["notes"] = [];
 
@@ -214,7 +352,9 @@ export function simulate(selected: string[], foundRoot: boolean): Outcome {
     const halved = item.id === "integrate" && !redesigned;
     const factor = halved ? 0.5 : 1;
     for (const [key, value] of Object.entries(item.effect) as [MetricKey, number][]) {
-      after[key] += key === "systems" ? Math.round(value * (halved ? 0.67 : 1)) : value * factor;
+      // Costs (negative effects) land in full whether or not people adopt the change.
+      const scale = value > 0 === (metricMeta[key].better === "up") ? realised : 1;
+      after[key] += key === "systems" ? Math.round(value * (halved ? 0.67 : 1) * scale) : value * factor * scale;
     }
     const bad = item.effect.margin !== undefined && item.effect.margin < 0;
     notes.push({
@@ -245,23 +385,32 @@ export function simulate(selected: string[], foundRoot: boolean): Outcome {
   const score = Math.max(0, Math.min(100, Math.round(raw)));
 
   const verdict =
-    score >= 85
-      ? "Back in profit inside 90 days, without hiring or buying a platform. That's a transformation."
-      : score >= 60
-        ? "Real progress. A different combination would have gone further for the same budget."
-        : score >= 30
-          ? "Some gains, but most of the budget went on symptoms rather than the cause."
-          : "The business is more expensive and not much faster. The process is still the problem.";
+    realised < 0.6 && score < 60
+      ? "A solution nobody uses delivers nothing. The plan was fine on paper; the people never came with it."
+      : score >= 85
+        ? "Back in profit inside 90 days, without hiring or buying a platform. That's a transformation."
+        : score >= 60
+          ? "Real progress. A different combination would have gone further for the same budget."
+          : score >= 30
+            ? "Some gains, but most of the budget went on symptoms rather than the cause."
+            : "The business is more expensive and not much faster. The process is still the problem.";
 
   const roadmap: Outcome["roadmap"] = { Design: [], Transform: [], Optimise: [] };
   for (const item of chosen) roadmap[item.phase].push(item.title);
 
-  return { after, notes, score, verdict, roadmap, kpis: chosen.map((i) => i.kpi) };
+  const changeNotes = changeMoves
+    .filter((m) => moves.includes(m.id))
+    .map((m) => ({ id: m.id, title: m.title, lesson: m.lesson, good: m.good }));
+
+  return { after, adoption: adopted, notes, changeNotes, score, verdict, roadmap, kpis: chosen.map((i) => i.kpi) };
 }
 
 /** What Rex would pick, shown after a run. */
 export const recommended = {
   picks: ["redesign", "integrate", "pricing"],
+  moves: ["codesign", "pilot"],
   reasoning:
-    "Fix the flow first, then automate it, then stop the commercial leak. $37k, three people, no new hires and no new platform. The scorecard is a good fourth move once there's someone free to own it.",
+    "Fix the flow first, then automate it, then stop the commercial leak. $37k, three people, no new hires and no new platform.",
+  change:
+    "Make the loudest sceptic the owner, then let a pilot's numbers do the persuading. The team's fear gets answered by Dana, not by a memo.",
 };

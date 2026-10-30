@@ -4,18 +4,24 @@ import { useRef, useState } from "react";
 import {
   type AreaId,
   type MetricKey,
+  ADOPTION_STICKS,
+  adoption,
   areas,
+  changeCapacity,
+  changeMoves,
   company,
   constraints,
   interventions,
   metricMeta,
   recommended,
   simulate,
+  stakeholders,
+  stances,
 } from "@/lib/lab/scenario";
 
-const METHOD = ["Assess", "Diagnose", "Strategise", "Design", "Transform", "Optimise"];
+const METHOD = ["Assess", "Diagnose", "Strategise", "Design", "Adopt", "Transform", "Optimise"];
 // How far along the methodology each stage lights up.
-const METHOD_PROGRESS = [1, 2, 3, 6];
+const METHOD_PROGRESS = [1, 2, 4, 5, 7];
 const METRIC_KEYS: MetricKey[] = ["margin", "utilisation", "cycle", "systems"];
 
 export default function FixThisBusiness() {
@@ -23,6 +29,7 @@ export default function FixThisBusiness() {
   const [areaId, setAreaId] = useState<AreaId | null>(null);
   const [hypothesisId, setHypothesisId] = useState<string | null>(null);
   const [picks, setPicks] = useState<string[]>([]);
+  const [moves, setMoves] = useState<string[]>([]);
   const topRef = useRef<HTMLDivElement>(null);
 
   const area = areas.find((a) => a.id === areaId) ?? null;
@@ -30,7 +37,9 @@ export default function FixThisBusiness() {
   const spent = interventions
     .filter((i) => picks.includes(i.id))
     .reduce((acc, i) => ({ cost: acc.cost + i.cost, people: acc.people + i.people }), { cost: 0, people: 0 });
-  const outcome = stage === 3 ? simulate(picks, Boolean(hypothesis?.root)) : null;
+  const outcome = stage === 4 ? simulate(picks, Boolean(hypothesis?.root), moves) : null;
+  const stance = stances(moves);
+  const adopted = adoption(moves);
 
   function go(next: number) {
     setStage(next);
@@ -43,10 +52,15 @@ export default function FixThisBusiness() {
     setPicks((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
   }
 
+  function toggleMove(id: string) {
+    setMoves((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]));
+  }
+
   function restart() {
     setAreaId(null);
     setHypothesisId(null);
     setPicks([]);
+    setMoves([]);
     go(0);
   }
 
@@ -56,7 +70,7 @@ export default function FixThisBusiness() {
       <div className="flex flex-col gap-4 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
         <div className="flex items-center gap-3">
           <span className="label label-lime">Interactive</span>
-          <span className="label">{String(stage + 1).padStart(2, "0")} / 04</span>
+          <span className="label">{String(stage + 1).padStart(2, "0")} / 05</span>
         </div>
         <ol className="flex flex-wrap gap-x-1 gap-y-1" aria-label="Transformation method">
           {METHOD.map((step, i) => {
@@ -228,13 +242,107 @@ export default function FixThisBusiness() {
                 ← Back
               </button>
               <button type="button" className="btn btn-lime" disabled={picks.length === 0} onClick={() => go(3)}>
+                Plan the rollout <span className="arrow">→</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {stage === 3 && (
+          <div>
+            <p className="label label-lime">Adopt · Land the change</p>
+            <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              Your plan is ready. Your people aren&apos;t.
+            </h3>
+            <p className="mt-2 text-sm text-muted">
+              {`You have the capacity for ${changeCapacity} change moves. Choose how you'll bring people with you.`}
+            </p>
+
+            <ul className="mt-6 grid gap-2.5 md:grid-cols-3">
+              {stakeholders.map((person) => {
+                const level = stance[person.id];
+                return (
+                  <li
+                    key={person.id}
+                    className={`rounded-md border px-4 py-4 transition-colors duration-300 ${
+                      level === 2
+                        ? "border-lime/50 bg-lime-soft"
+                        : level === 1
+                          ? "border-line-strong bg-surface-2"
+                          : "border-signal/40 bg-signal-soft"
+                    }`}
+                  >
+                    <p className="flex items-baseline justify-between gap-3">
+                      <span className="font-medium">{person.name}</span>
+                      <span className="label !text-[0.625rem]">{person.role}</span>
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">&ldquo;{person.quote}&rdquo;</p>
+                    <p
+                      className={`label mt-3 flex items-center gap-2 ${
+                        level === 2 ? "label-lime" : level === 1 ? "" : "!text-signal"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          level === 2 ? "bg-lime" : level === 1 ? "bg-muted" : "bg-signal"
+                        }`}
+                        aria-hidden="true"
+                      />
+                      {person.states[level]}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="mt-6 grid gap-2.5 md:grid-cols-2">
+              {changeMoves.map((move) => {
+                const picked = moves.includes(move.id);
+                return (
+                  <button
+                    key={move.id}
+                    type="button"
+                    aria-pressed={picked}
+                    disabled={!picked && moves.length >= changeCapacity}
+                    onClick={() => toggleMove(move.id)}
+                    className="option flex flex-col gap-1 px-4 py-3.5 disabled:opacity-40"
+                  >
+                    <span className="font-medium leading-snug">{move.title}</span>
+                    <span className="text-sm text-muted">{move.hint}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-baseline justify-between">
+                <span className="label">Adoption</span>
+                <span className="font-mono text-xs">
+                  <span className={adopted >= ADOPTION_STICKS ? "text-lime" : "text-ink"}>{adopted}%</span>
+                  <span className="text-dim"> · sticks at {ADOPTION_STICKS}%</span>
+                </span>
+              </div>
+              <div className="meter mt-2">
+                <span
+                  style={{ width: `${adopted}%` }}
+                  className={adopted >= ADOPTION_STICKS ? "" : "!bg-signal"}
+                />
+              </div>
+              <p className="mt-2 text-xs text-dim">A solution nobody uses delivers nothing. Results scale with adoption.</p>
+            </div>
+
+            <div className="mt-7 flex flex-wrap justify-between gap-3">
+              <button type="button" className="btn btn-ghost" onClick={() => go(2)}>
+                ← Back
+              </button>
+              <button type="button" className="btn btn-lime" onClick={() => go(4)}>
                 Run 90 days <span className="arrow">→</span>
               </button>
             </div>
           </div>
         )}
 
-        {stage === 3 && outcome && (
+        {stage === 4 && outcome && (
           <div>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
@@ -243,9 +351,21 @@ export default function FixThisBusiness() {
                   {outcome.verdict}
                 </h3>
               </div>
-              <div className="shrink-0 text-left lg:text-right">
-                <p className="label">Transformation score</p>
-                <p className="font-display text-6xl font-semibold tracking-tight text-lime">{outcome.score}</p>
+              <div className="flex shrink-0 gap-8 text-left lg:text-right">
+                <div>
+                  <p className="label">Adoption</p>
+                  <p
+                    className={`font-display text-6xl font-semibold tracking-tight ${
+                      outcome.adoption >= ADOPTION_STICKS ? "text-ink" : "text-signal"
+                    }`}
+                  >
+                    {outcome.adoption}%
+                  </p>
+                </div>
+                <div>
+                  <p className="label">Transformation score</p>
+                  <p className="font-display text-6xl font-semibold tracking-tight text-lime">{outcome.score}</p>
+                </div>
               </div>
             </div>
 
@@ -287,6 +407,19 @@ export default function FixThisBusiness() {
                           }`}
                           aria-hidden="true"
                         />
+                        {n.title}
+                      </p>
+                      <p className="mt-1 text-sm leading-relaxed text-muted">{n.lesson}</p>
+                    </li>
+                  ))}
+                  {outcome.changeNotes.map((n) => (
+                    <li key={n.id} className="panel-2 border-dashed px-4 py-3.5">
+                      <p className="flex items-center gap-2.5 font-medium">
+                        <span
+                          className={`h-1.5 w-1.5 shrink-0 rounded-full ${n.good ? "bg-lime" : "bg-signal"}`}
+                          aria-hidden="true"
+                        />
+                        <span className="label !text-[0.625rem]">Change</span>
                         {n.title}
                       </p>
                       <p className="mt-1 text-sm leading-relaxed text-muted">{n.lesson}</p>
@@ -334,11 +467,17 @@ export default function FixThisBusiness() {
                 </span>{" "}
                 <span className="text-muted">{recommended.reasoning}</span>
               </p>
+              <p className="mt-2 text-sm leading-relaxed sm:text-[0.9375rem]">
+                <span className="font-medium">
+                  {recommended.moves.map((id) => changeMoves.find((m) => m.id === id)?.title).join(" + ")}.
+                </span>{" "}
+                <span className="text-muted">{recommended.change}</span>
+              </p>
             </div>
 
             <div className="mt-7 flex flex-wrap justify-between gap-3">
-              <button type="button" className="btn btn-ghost" onClick={() => go(2)}>
-                ← Change the plan
+              <button type="button" className="btn btn-ghost" onClick={() => go(3)}>
+                ← Change the rollout
               </button>
               <button type="button" className="btn btn-lime" onClick={restart}>
                 Start over <span className="arrow">↺</span>

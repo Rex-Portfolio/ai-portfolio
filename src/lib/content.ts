@@ -34,6 +34,10 @@ export type CaseStudy = {
   build: string;
   stack: string[];
   result: string;
+  /** How people adopted the change. */
+  landed: string;
+  /** True until Rex has confirmed the "landed" wording; shows a DRAFT tag. */
+  landedDraft?: boolean;
   metric: { value: string; label: string };
 };
 
@@ -49,6 +53,8 @@ export const caseStudies: CaseStudy[] = [
     stack: ["React.js", "Vercel", "AWS", "NeonDB", "Singpass/MyInfo API"],
     result:
       "Customer onboarding cut from half a day to under 90 seconds. Merchant setup from 4 hours to under 30 minutes.",
+    landed: "Onboarded merchants in small batches and fixed what they raised before scaling, so the portals earned trust instead of being imposed.",
+    landedDraft: true,
     metric: { value: "90s", label: "customer onboarding" },
   },
   {
@@ -59,6 +65,8 @@ export const caseStudies: CaseStudy[] = [
     build: "Designed and built automated credit scoring logic on top of verified MyInfo data and the loan system.",
     stack: ["Singpass/MyInfo API", "Proprietary LMS", "React.js"],
     result: "Underwriting time cut from half a day to under 2 minutes per application.",
+    landed: "Ran the automated scores alongside manual underwriting until the credit team agreed with the engine's calls, then made it the default.",
+    landedDraft: true,
     metric: { value: "<2 min", label: "per application" },
   },
   {
@@ -69,6 +77,8 @@ export const caseStudies: CaseStudy[] = [
     build: "Deployed a 24/7 OpenAI-powered WhatsApp servicing workflow that replaced manual agent operations.",
     stack: ["OpenAI API", "WhatsApp Business API", "n8n"],
     result: "Operational costs cut by 96%, with no extra hires needed at the same volume.",
+    landed: "Kept a human escalation path from day one, so the team saw the AI as taking the repetitive work, not their judgement.",
+    landedDraft: true,
     metric: { value: "−96%", label: "operating cost" },
   },
   {
@@ -79,6 +89,8 @@ export const caseStudies: CaseStudy[] = [
     build: "Automated repayment tracking tied directly to loan schedules and QR payment infrastructure.",
     stack: ["Workato", "QR payments", "LMS integration"],
     result: "Freed 2.5 days of ops effort per week, with zero reconciliation mismatches since deployment.",
+    landed: "Ran the automated reconciliation in parallel with the manual one until finance trusted the numbers, then retired the spreadsheet.",
+    landedDraft: true,
     metric: { value: "2.5 days", label: "freed per week" },
   },
   {
@@ -89,6 +101,8 @@ export const caseStudies: CaseStudy[] = [
     build: "Automated consolidation across the group, removing the Excel dependency.",
     stack: ["JavaScript", "Macros", "Workato"],
     result: "Reporting turnaround cut from 1 week to under 10 minutes, enabling real-time management decisions.",
+    landed: "Delivered the automated statements in the format finance already used, so the switch changed the speed, not the habits.",
+    landedDraft: true,
     metric: { value: "10 min", label: "reporting turnaround" },
   },
   {
@@ -99,6 +113,8 @@ export const caseStudies: CaseStudy[] = [
     build: "Led business process re-engineering across all departments, redesigning workflows end to end.",
     stack: ["Workato", "AI agents", "Google Workspace"],
     result: "Reduced manual intervention across finance, ops, onboarding and reporting, group-wide.",
+    landed: "Mapped each department's workflow with the people doing the work, so the redesign came from their pain points, not a top-down mandate.",
+    landedDraft: true,
     metric: { value: "All depts", label: "redesigned" },
   },
 ];

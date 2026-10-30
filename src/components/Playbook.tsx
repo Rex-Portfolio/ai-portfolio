@@ -58,6 +58,17 @@ export default function Playbook() {
                 <dd className="text-[0.9375rem] leading-relaxed">{text}</dd>
               </div>
             ))}
+            <div className="grid gap-1 px-6 py-5 sm:grid-cols-[8rem_1fr] sm:gap-6 sm:px-8">
+              <dt className="label pt-0.5">How it landed</dt>
+              <dd className="text-[0.9375rem] leading-relaxed">
+                {active.landedDraft && (
+                  <span className="mr-2 rounded-[3px] border border-amber-300/50 px-1.5 py-0.5 align-middle font-mono text-[0.625rem] uppercase tracking-wider text-amber-300">
+                    Draft
+                  </span>
+                )}
+                {active.landed}
+              </dd>
+            </div>
             <div className="grid gap-2 px-6 py-5 sm:grid-cols-[8rem_1fr] sm:gap-6 sm:px-8">
               <dt className="label pt-1">Stack</dt>
               <dd className="flex flex-wrap gap-1.5">

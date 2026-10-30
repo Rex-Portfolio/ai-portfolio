@@ -64,8 +64,8 @@ export default function Home() {
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-muted">
                 I work where business, operations and technology meet. I find what&apos;s broken, challenge the
-                assumptions behind it and turn it into measurable improvement, then build the automation that makes
-                it stick.
+                assumptions behind it, bring people with the change, and use technology (AI included) only where it
+                earns its place.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <a href="#lab" className="btn btn-lime">
@@ -135,7 +135,7 @@ export default function Home() {
                   <span className="text-lime">Diagnose something.</span>
                 </>
               }
-              description="A struggling company, a tight budget and 90 days. Find the real problem, make your moves, and see what happens. This is how I approach every engagement."
+              description="A struggling company, a tight budget, sceptical people and 90 days. Find the real problem, make your moves, land the change, and see what happens. This is how I approach every engagement."
             />
             <FixThisBusiness />
 
@@ -146,8 +146,8 @@ export default function Home() {
                   Got a real problem? Run it through the diagnostic.
                 </h3>
                 <p className="mt-3 max-w-2xl text-muted">
-                  Describe a business problem and get a structured assessment, with the reasoning shown step by step.
-                  No black-box scoring.
+                  AI is one tool in the kit, used when it earns its place. Here it earns it: describe a business
+                  problem and get a structured assessment, with the reasoning shown step by step.
                 </p>
                 <div className="mt-8">
                   <DiagnosticForm />
@@ -164,7 +164,7 @@ export default function Home() {
               index="03"
               name="The Playbook"
               title="Problems I've actually fixed."
-              description="Real projects, real numbers. What wasn't working, what I did about it, and what changed."
+              description="Real projects, real numbers. What wasn't working, what I did about it, how the people came with it, and what changed."
             />
             <Playbook />
           </div>

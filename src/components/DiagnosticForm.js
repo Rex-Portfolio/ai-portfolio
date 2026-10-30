@@ -48,13 +48,13 @@ export default function DiagnosticForm() {
   }
 
   const inputClassName =
-    "w-full rounded-xl border border-dark-border bg-dark-bg px-4 py-3 text-sm leading-relaxed text-dark-text outline-none transition duration-200 placeholder:text-dark-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/20";
+    "w-full rounded-md border border-line bg-bg px-4 py-3 text-sm leading-relaxed text-ink outline-none transition duration-200 placeholder:text-dim focus:border-lime focus:ring-2 focus:ring-lime/20";
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-2 lg:gap-6">
-      <form onSubmit={handleSubmit} className="card-dark space-y-5 p-6 lg:p-7">
+      <form onSubmit={handleSubmit} className="panel space-y-5 p-6 lg:p-7">
         <div>
-          <label htmlFor="industry" className="mb-1.5 block text-sm font-medium text-dark-text">
+          <label htmlFor="industry" className="mb-1.5 block text-sm font-medium text-ink">
             Industry
           </label>
           <input
@@ -71,7 +71,7 @@ export default function DiagnosticForm() {
         </div>
 
         <div>
-          <label htmlFor="teamSize" className="mb-1.5 block text-sm font-medium text-dark-text">
+          <label htmlFor="teamSize" className="mb-1.5 block text-sm font-medium text-ink">
             Team size
           </label>
           <input
@@ -88,7 +88,7 @@ export default function DiagnosticForm() {
         </div>
 
         <div>
-          <label htmlFor="problem" className="mb-1.5 block text-sm font-medium text-dark-text">
+          <label htmlFor="problem" className="mb-1.5 block text-sm font-medium text-ink">
             Describe a problem
           </label>
           <textarea
@@ -104,31 +104,31 @@ export default function DiagnosticForm() {
           />
         </div>
 
-        <button type="submit" disabled={loading} className="btn-primary-dark w-full">
+        <button type="submit" disabled={loading} className="btn btn-lime w-full">
           {loading ? "Running diagnostic..." : "Run Diagnostic"}
         </button>
 
         {error && (
-          <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-300">
+          <p role="alert" className="rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-300">
             {error}
           </p>
         )}
       </form>
 
-      <div aria-live="polite" aria-busy={loading} className="card-dark flex min-h-[22rem] flex-col p-6 lg:min-h-0 lg:p-7">
+      <div aria-live="polite" aria-busy={loading} className="panel flex min-h-[22rem] flex-col p-6 lg:min-h-0 lg:p-7">
         {loading && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-            <div aria-hidden="true" className="h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-            <p className="text-sm text-dark-muted">Analysing your problem...</p>
+            <div aria-hidden="true" className="h-7 w-7 animate-spin rounded-full border-2 border-lime border-t-transparent" />
+            <p className="text-sm text-muted">Analysing your problem...</p>
           </div>
         )}
 
         {!loading && !result && (
           <div className="flex flex-1 flex-col justify-center">
-            <p className="font-heading text-sm font-semibold text-dark-text">
+            <p className="font-display text-sm font-semibold text-ink">
               Assessment results
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-dark-muted">
+            <p className="mt-2 text-sm leading-relaxed text-muted">
               Submit a problem to receive a structured assessment.
             </p>
           </div>
@@ -137,32 +137,32 @@ export default function DiagnosticForm() {
         {!loading && result && (
           <div className="space-y-5 overflow-y-auto">
             <div>
-              <h3 className="section-label section-label-dark">The Real Problem</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">
+              <h3 className="label label-lime">The Real Problem</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink/90">
                 {result.realProblem}
               </p>
             </div>
 
             <div>
-              <h3 className="section-label section-label-dark">Recommended Approach</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">{result.approach}</p>
+              <h3 className="label label-lime">Recommended Approach</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink/90">{result.approach}</p>
             </div>
 
             <div>
-              <h3 className="section-label section-label-dark">Where to Start</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dark-text/90">
+              <h3 className="label label-lime">Where to Start</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink/90">
                 {result.startHere.lead}
               </p>
               <ul className="mt-3 space-y-2.5">
                 {result.startHere.opportunities.map((item, index) => (
                   <li
                     key={index}
-                    className="rounded-xl border border-dark-border bg-dark-bg p-4"
+                    className="rounded-md border border-line bg-bg p-4"
                   >
-                    <p className="font-heading text-sm font-medium text-dark-text">
+                    <p className="font-display text-sm font-medium text-ink">
                       {item.title}
                     </p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-dark-muted">
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted">
                       {item.detail}
                     </p>
                   </li>
@@ -170,7 +170,7 @@ export default function DiagnosticForm() {
               </ul>
             </div>
 
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <div className="rounded-md border border-amber-500/20 bg-amber-500/10 p-4">
               <h3 className="text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-amber-300">
                 Considerations
               </h3>

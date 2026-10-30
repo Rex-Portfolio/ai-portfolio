@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAIProvider } from "@/lib/ai";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { LIMITS } from "@/lib/diagnose-limits";
+import { checkRateLimit, getClientIp, takeDailyBudget } from "@/lib/rate-limit";
+
+const CACHE_SIZE = 200;
+/** Identical questions get the stored answer instead of a new model call. */
+const answers = new Map();
 
 /**
  * @param {unknown} body
@@ -37,22 +41,23 @@ function parseRequestBody(body) {
   };
 }
 
+/**
+ * @param {{ industry: string; teamSize: string; problem: string }} input
+ */
+function cacheKey({ industry, teamSize, problem }) {
+  return [industry, teamSize, problem].map((s) => s.toLowerCase().replace(/\s+/g, " ")).join("|");
+}
+
+/**
+ * @param {ReadableStream<Uint8Array> | string} body
+ */
+function textResponse(body) {
+  return new Response(body, {
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
+
 export async function POST(request) {
-  const ip = getClientIp(request);
-  const rateLimit = checkRateLimit(ip);
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      {
-        error: `Rate limit exceeded. You can run up to 5 diagnostics per minute. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
-  }
-
   let body;
 
   try {
@@ -64,45 +69,76 @@ export async function POST(request) {
     );
   }
 
+  // Honeypot: real visitors never see or fill this field.
+  if (body && typeof body === "object" && body.website) {
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 400 });
+  }
+
   const input = parseRequestBody(body);
   if (!input) {
     return NextResponse.json(
       {
-        error:
-          `Invalid request. Fill in all fields (problem up to ${LIMITS.problem} characters).`,
+        error: `Invalid request. Fill in all fields (problem up to ${LIMITS.problem} characters).`,
       },
       { status: 400 },
     );
   }
 
-  try {
-    const generateDiagnosis = getAIProvider();
-    const result = await generateDiagnosis(input);
-    return NextResponse.json(result);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "An unexpected error occurred";
+  const key = cacheKey(input);
+  const cached = answers.get(key);
+  if (cached) {
+    return textResponse(cached);
+  }
 
-    if (message.includes("not configured")) {
-      return NextResponse.json({ error: message }, { status: 500 });
-    }
-
-    if (
-      message.includes("not valid JSON") ||
-      message.includes("missing or invalid") ||
-      message.includes("invalid opportunity") ||
-      message.includes("startHere")
-    ) {
-      return NextResponse.json(
-        { error: "Failed to parse model response", detail: message },
-        { status: 502 },
-      );
-    }
-
-    console.error("[diagnose]", error);
+  const rateLimit = checkRateLimit(getClientIp(request));
+  if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Failed to generate diagnosis" },
-      { status: 500 },
+      {
+        error: `You can run up to 5 diagnostics per minute. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      },
     );
   }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: "ANTHROPIC_API_KEY is not configured" }, { status: 500 });
+  }
+
+  if (!takeDailyBudget()) {
+    return NextResponse.json(
+      { error: "The live diagnostic has hit today's limit. Try one of the examples, or come back tomorrow." },
+      { status: 429 },
+    );
+  }
+
+  const streamDiagnosis = getAIProvider();
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      let full = "";
+      try {
+        for await (const chunk of streamDiagnosis(input, request.signal)) {
+          full += chunk;
+          controller.enqueue(encoder.encode(chunk));
+        }
+        if (!full.includes("## ERROR")) {
+          if (answers.size >= CACHE_SIZE) answers.delete(answers.keys().next().value);
+          answers.set(key, full);
+        }
+      } catch (error) {
+        console.error("[diagnose]", error);
+        controller.enqueue(
+          encoder.encode("\n## ERROR\nThe diagnostic stopped partway. Please try again in a moment.\n"),
+        );
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return textResponse(stream);
 }

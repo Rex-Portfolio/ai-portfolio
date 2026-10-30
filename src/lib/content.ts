@@ -1,5 +1,5 @@
 // Site copy and portfolio data. Figures here are real outcomes from past work;
-// the Diagnostic Lab's fictional company lives in `src/lib/lab/scenario.ts`.
+// the Diagnostic Lab's fictional company lives in `src/lib/lab/scenarios/`.
 
 export const principles = [
   {
@@ -50,11 +50,10 @@ export const caseStudies: CaseStudy[] = [
       "A live BNPL platform needed Admin, Merchant and Customer portals, and onboarding took half a day per customer.",
     build:
       "Built all three portals from scratch, with Singpass/MyInfo pulling verified customer data straight into onboarding.",
-    stack: ["React.js", "Vercel", "AWS", "NeonDB", "Singpass/MyInfo API"],
+    stack: ["React.js", "Vercel", "AWS", "NeonDB", "Singpass/MyInfo API", "DBS RAPID API"],
     result:
       "Customer onboarding cut from half a day to under 90 seconds. Merchant setup from 4 hours to under 30 minutes.",
     landed: "Onboarded merchants in small batches and fixed what they raised before scaling, so the portals earned trust instead of being imposed.",
-    landedDraft: true,
     metric: { value: "90s", label: "customer onboarding" },
   },
   {
@@ -62,23 +61,24 @@ export const caseStudies: CaseStudy[] = [
     title: "Credit scoring & underwriting engine",
     tag: "Decision automation",
     problem: "Every application went through half a day of manual underwriting.",
-    build: "Designed and built automated credit scoring logic on top of verified MyInfo data and the loan system.",
-    stack: ["Singpass/MyInfo API", "Proprietary LMS", "React.js"],
+    build:
+      "Designed and built automated credit scoring on verified MyInfo data, using machine learning to recalibrate the scoring as the applicant mix and repayment behaviour shifted.",
+    stack: ["Singpass/MyInfo API", "AI/ML scoring models", "Proprietary LMS", "React.js"],
     result: "Underwriting time cut from half a day to under 2 minutes per application.",
-    landed: "Ran the automated scores alongside manual underwriting until the credit team agreed with the engine's calls, then made it the default.",
-    landedDraft: true,
+    landed:
+      "Ran the automated scores in parallel with manual underwriting until the credit team agreed with the engine's calls, then made it the default.",
     metric: { value: "<2 min", label: "per application" },
   },
   {
     id: "support",
-    title: "AI customer support automation",
+    title: "AI customer service & lead funnel",
     tag: "AI operations",
-    problem: "Customer servicing ran on manual agents, and volume growth meant more hires.",
-    build: "Deployed a 24/7 OpenAI-powered WhatsApp servicing workflow that replaced manual agent operations.",
+    problem: "Customer queries and new leads were handled by hand, so every bit of growth meant more hires.",
+    build:
+      "Deployed a 24/7 OpenAI-powered WhatsApp assistant that answers customer queries and captures, qualifies and routes new leads into the sales funnel.",
     stack: ["OpenAI API", "WhatsApp Business API", "n8n"],
     result: "Operational costs cut by 96%, with no extra hires needed at the same volume.",
     landed: "Kept a human escalation path from day one, so the team saw the AI as taking the repetitive work, not their judgement.",
-    landedDraft: true,
     metric: { value: "−96%", label: "operating cost" },
   },
   {
@@ -90,7 +90,6 @@ export const caseStudies: CaseStudy[] = [
     stack: ["Workato", "QR payments", "LMS integration"],
     result: "Freed 2.5 days of ops effort per week, with zero reconciliation mismatches since deployment.",
     landed: "Ran the automated reconciliation in parallel with the manual one until finance trusted the numbers, then retired the spreadsheet.",
-    landedDraft: true,
     metric: { value: "2.5 days", label: "freed per week" },
   },
   {
@@ -99,10 +98,9 @@ export const caseStudies: CaseStudy[] = [
     tag: "Finance automation",
     problem: "Group-wide statement consolidation depended on manual Excel work and took a week.",
     build: "Automated consolidation across the group, removing the Excel dependency.",
-    stack: ["JavaScript", "Macros", "Workato"],
+    stack: ["NetSuite API", "Workato", "JavaScript", "Macros"],
     result: "Reporting turnaround cut from 1 week to under 10 minutes, enabling real-time management decisions.",
     landed: "Delivered the automated statements in the format finance already used, so the switch changed the speed, not the habits.",
-    landedDraft: true,
     metric: { value: "10 min", label: "reporting turnaround" },
   },
   {
@@ -110,12 +108,25 @@ export const caseStudies: CaseStudy[] = [
     title: "Group-wide process re-engineering",
     tag: "Operating model",
     problem: "Manual touchpoints across every department were capping throughput.",
-    build: "Led business process re-engineering across all departments, redesigning workflows end to end.",
-    stack: ["Workato", "AI agents", "Google Workspace"],
-    result: "Reduced manual intervention across finance, ops, onboarding and reporting, group-wide.",
+    build:
+      "Interviewed teams through Google Forms and Sheets, mapped current-state swimlanes, set ownership with RACI charts, redesigned the workflows and wrote new SOPs, then automated the steps, using OpenAI to read documents (OCR).",
+    stack: [
+      "Miro",
+      "Lucidchart",
+      "Google Forms & Sheets",
+      "RACI",
+      "Google Docs (SOPs)",
+      "Workato",
+      "n8n",
+      "OpenAI (OCR)",
+      "Google Chat / Slack / Lark",
+      "Metabase",
+      "Looker Studio",
+    ],
+    result:
+      "Average process turnaround cut from about a week to around 2 hours across the organisation, with far less manual work in finance, ops, onboarding and reporting.",
     landed: "Mapped each department's workflow with the people doing the work, so the redesign came from their pain points, not a top-down mandate.",
-    landedDraft: true,
-    metric: { value: "All depts", label: "redesigned" },
+    metric: { value: "1 wk → 2 hrs", label: "avg process turnaround" },
   },
 ];
 
@@ -128,11 +139,11 @@ export const beliefs = [
   },
   {
     polite: "Targets without resources are just wishful thinking.",
-    blunt: "A target without a resource plan is an aspiration.",
+    blunt: "Setting a target without resourcing it isn't leadership. It's delegating hope.",
   },
   {
-    polite: "Technology should solve problems, not create new ones.",
-    blunt: "Digital transformation isn't buying software and calling it innovation.",
+    polite: "Don't deploy AI for the sake of using AI.",
+    blunt: "If you can't name the problem it solves, your AI project is just for a press release.",
   },
   {
     polite: "Measure outcomes, not activity.",
@@ -140,7 +151,7 @@ export const beliefs = [
   },
   {
     polite: "If a system depends on one person constantly firefighting, the system is broken.",
-    blunt: "More headcount isn't always the answer. Sometimes the operating model is just terrible.",
+    blunt: "If your best person is your best firefighter, you've built a fire hazard.",
   },
 ];
 
@@ -148,5 +159,5 @@ export const exploring = [
   "AI and intelligent automation",
   "Business process optimisation",
   "Enterprise transformation",
-  "Building independent digital products",
+  "Change management for AI rollouts",
 ];

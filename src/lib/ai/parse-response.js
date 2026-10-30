@@ -1,14 +1,30 @@
+// Parses the sectioned diagnosis text. Works on partial text, so the form can
+// render each section as it streams in.
+
 /**
+ * @typedef {"PROCESS" | "AUTOMATION" | "AI"} VerdictLevel
  * @typedef {{
- *   realProblem: string;
- *   approach: string;
- *   startHere: {
- *     lead: string;
- *     opportunities: Array<{ title: string; detail: string }>;
- *   };
- *   considerations: string;
- * }} DiagnosisResult
+ *   problem?: string;
+ *   verdict?: { level: VerdictLevel | null; reason: string };
+ *   fixFirst?: string;
+ *   plan?: Array<{ day: string; text: string }>;
+ *   changeRisk?: string;
+ *   kpis?: string[];
+ *   watchOut?: string;
+ *   error?: string;
+ * }} Diagnosis
  */
+
+const KEYS = /** @type {const} */ ({
+  PROBLEM: "problem",
+  VERDICT: "verdict",
+  "FIX FIRST": "fixFirst",
+  PLAN: "plan",
+  "CHANGE RISK": "changeRisk",
+  KPIS: "kpis",
+  "WATCH OUT": "watchOut",
+  ERROR: "error",
+});
 
 /**
  * @param {string} text
@@ -16,96 +32,55 @@
  */
 function stripEmDashes(text) {
   return text
-    .replace(/\s*—\s*/g, ", ")
-    .replace(/—/g, ", ")
+    .replace(/\s*\u2014\s*/g, ", ")
     .replace(/,\s*,/g, ",")
-    .replace(/\s{2,}/g, " ")
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
 }
 
 /**
- * @param {DiagnosisResult} result
- * @returns {DiagnosisResult}
- */
-function sanitizeDiagnosisResult(result) {
-  return {
-    realProblem: stripEmDashes(result.realProblem),
-    approach: stripEmDashes(result.approach),
-    startHere: {
-      lead: stripEmDashes(result.startHere.lead),
-      opportunities: result.startHere.opportunities.map((item) => ({
-        title: stripEmDashes(item.title),
-        detail: stripEmDashes(item.detail),
-      })),
-    },
-    considerations: stripEmDashes(result.considerations),
-  };
-}
-
-/**
  * @param {string} text
- * @returns {DiagnosisResult}
+ * @returns {Diagnosis}
  */
-export function parseDiagnosisResponse(text) {
-  const trimmed = text.trim();
-
-  let parsed;
-  try {
-    parsed = JSON.parse(trimmed);
-  } catch {
-    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (!fenced) {
-      throw new Error("Model response was not valid JSON");
-    }
-    parsed = JSON.parse(fenced[1].trim());
-  }
-
-  validateDiagnosisResult(parsed);
-  return sanitizeDiagnosisResult(parsed);
-}
-
-/**
- * @param {unknown} value
- * @returns {asserts value is DiagnosisResult}
- */
-function validateDiagnosisResult(value) {
-  if (!value || typeof value !== "object") {
-    throw new Error("Model response was not a JSON object");
-  }
-
-  const result = /** @type {Record<string, unknown>} */ (value);
-  const requiredStrings = ["realProblem", "approach", "considerations"];
-
-  for (const field of requiredStrings) {
-    if (typeof result[field] !== "string" || !result[field].trim()) {
-      throw new Error(`Model response missing or invalid field: ${field}`);
+export function parseDiagnosis(text) {
+  /** @type {Record<string, string[]>} */
+  const raw = {};
+  let current = null;
+  for (const line of text.split("\n")) {
+    const heading = line.match(/^##\s+([A-Z ]+?)\s*$/);
+    if (heading && heading[1] in KEYS) {
+      current = KEYS[/** @type {keyof typeof KEYS} */ (heading[1])];
+      raw[current] = [];
+    } else if (current) {
+      raw[current].push(line);
     }
   }
 
-  if (!result.startHere || typeof result.startHere !== "object") {
-    throw new Error("Model response missing or invalid field: startHere");
-  }
+  const body = (key) => (raw[key] ? stripEmDashes(raw[key].join("\n")) : undefined);
+  const lines = (key) =>
+    (raw[key] ?? []).map((l) => stripEmDashes(l)).filter(Boolean);
 
-  const startHere = /** @type {Record<string, unknown>} */ (result.startHere);
-
-  if (typeof startHere.lead !== "string" || !startHere.lead.trim()) {
-    throw new Error("Model response missing or invalid field: startHere.lead");
+  /** @type {Diagnosis} */
+  const result = {};
+  if (raw.problem) result.problem = body("problem");
+  if (raw.verdict) {
+    const [first = "", ...rest] = lines("verdict");
+    const level = first.toUpperCase().match(/\b(PROCESS|AUTOMATION|AI)\b/)?.[1] ?? null;
+    result.verdict = {
+      level: /** @type {VerdictLevel | null} */ (level),
+      reason: (level ? rest : [first, ...rest]).join(" "),
+    };
   }
-
-  if (!Array.isArray(startHere.opportunities) || startHere.opportunities.length !== 3) {
-    throw new Error("Model response missing or invalid field: startHere.opportunities");
+  if (raw.fixFirst) result.fixFirst = body("fixFirst");
+  if (raw.plan) {
+    result.plan = lines("plan").map((l) => {
+      const m = l.match(/^(30|60|90)\s*:\s*(.*)$/);
+      return m ? { day: m[1], text: m[2] } : { day: "", text: l };
+    });
   }
-
-  for (const item of startHere.opportunities) {
-    if (
-      !item ||
-      typeof item !== "object" ||
-      typeof item.title !== "string" ||
-      !item.title.trim() ||
-      typeof item.detail !== "string" ||
-      !item.detail.trim()
-    ) {
-      throw new Error("Model response contains invalid opportunity entries");
-    }
-  }
+  if (raw.changeRisk) result.changeRisk = body("changeRisk");
+  if (raw.kpis) result.kpis = lines("kpis").map((l) => l.replace(/^[-*•]\s*/, ""));
+  if (raw.watchOut) result.watchOut = body("watchOut");
+  if (raw.error) result.error = body("error");
+  return result;
 }

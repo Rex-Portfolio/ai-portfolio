@@ -1,38 +1,46 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { buildDiagnosisPrompt } from "./prompt.js";
-import { parseDiagnosisResponse } from "./parse-response.js";
+import { SYSTEM_PROMPT, buildDiagnosisPrompt } from "./prompt.js";
 
-const MODEL = "claude-sonnet-4-6";
-const MAX_TOKENS = 1000;
+// Haiku keeps each run to a fraction of a cent. Set AI_MODEL (e.g. claude-sonnet-5-5) for deeper answers.
+const MODEL = process.env.AI_MODEL || "claude-haiku-5-5";
+const MAX_TOKENS = 2000;
 
 /**
  * @typedef {import("./prompt.js").DiagnosisInput} DiagnosisInput
- * @typedef {import("./parse-response.js").DiagnosisResult} DiagnosisResult
  */
 
 /**
+ * Streams the diagnosis as plain text in the sectioned format from the prompt.
  * @param {DiagnosisInput} input
- * @returns {Promise<DiagnosisResult>}
+ * @param {AbortSignal} [signal]
+ * @returns {AsyncGenerator<string>}
  */
-export async function generateDiagnosis(input) {
+export async function* streamDiagnosis(input, signal) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY is not configured");
   }
 
   const client = new Anthropic({ apiKey });
-  const prompt = buildDiagnosisPrompt(input);
+  const stream = client.messages.stream(
+    {
+      model: MODEL,
+      max_tokens: MAX_TOKENS,
+      output_config: { effort: "low" },
+      system: SYSTEM_PROMPT,
+      messages: [{ role: "user", content: buildDiagnosisPrompt(input) }],
+    },
+    { signal },
+  );
 
-  const message = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const textBlock = message.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Model returned no text content");
+  for await (const event of stream) {
+    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+      yield event.delta.text;
+    }
   }
 
-  return parseDiagnosisResponse(textBlock.text);
+  const message = await stream.finalMessage();
+  if (message.stop_reason === "refusal") {
+    yield "\n## ERROR\nThe diagnostic can't help with that one. Try describing an operational problem in your business.\n";
+  }
 }

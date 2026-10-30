@@ -22,7 +22,7 @@ function SectionHead({
   return (
     <div className="mb-10 grid gap-6 lg:mb-14 lg:grid-cols-[14rem_1fr]">
       <p className="label label-lime pt-2">
-        {index} — {name}
+        {index} / {name}
       </p>
       <div className="max-w-3xl">
         <h2 className="section-title">{title}</h2>
@@ -44,7 +44,7 @@ export default function Home() {
       <TopBar />
 
       <main>
-        {/* 01 — The Operator */}
+        {/* 01 / The Operator */}
         <section className="relative overflow-hidden">
           <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden="true" />
           <div
@@ -54,7 +54,7 @@ export default function Home() {
 
           <div className="wrap relative grid gap-12 pt-14 pb-16 sm:pt-20 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-16 lg:pt-24 lg:pb-24">
             <div>
-              <p className="label label-lime">01 — The Operator · Singapore</p>
+              <p className="label label-lime">01 / The Operator · Singapore</p>
               <h1 className="display mt-6 text-[2.75rem] sm:text-7xl lg:text-[4rem] xl:text-[4.75rem]">
                 Every business has a system.
                 <span className="mt-2 block text-lime">Not every system works.</span>
@@ -122,7 +122,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 02 — The Diagnostic Lab */}
+        {/* 02 / The Diagnostic Lab */}
         <AnimatedSection id="lab" className="section">
           <div className="wrap">
             <SectionHead
@@ -140,7 +140,7 @@ export default function Home() {
             <FixThisBusiness />
 
             <div className="mt-16 grid gap-6 lg:mt-24 lg:grid-cols-[14rem_1fr]">
-              <p className="label pt-2">02.b — Bring your own</p>
+              <p className="label pt-2">02.b / Bring your own</p>
               <div>
                 <h3 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                   Got a real problem? Run it through the diagnostic.
@@ -157,7 +157,7 @@ export default function Home() {
           </div>
         </AnimatedSection>
 
-        {/* 03 — The Transformation Playbook */}
+        {/* 03 / The Transformation Playbook */}
         <AnimatedSection id="playbook" className="section">
           <div className="wrap">
             <SectionHead
@@ -170,7 +170,7 @@ export default function Home() {
           </div>
         </AnimatedSection>
 
-        {/* 04 — The Human Behind the Systems */}
+        {/* 04 / The Human Behind the Systems */}
         <AnimatedSection id="human" className="section">
           <div className="wrap">
             <SectionHead index="04" name="The Human" title="The person behind the systems." />
@@ -226,7 +226,7 @@ export default function Home() {
         <AnimatedSection id="contact" className="section relative overflow-hidden">
           <div className="grid-bg pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
           <div className="wrap relative">
-            <p className="label label-lime">05 — Contact</p>
+            <p className="label label-lime">05 / Contact</p>
             <h2 className="display mt-6 text-[2.5rem] sm:text-6xl xl:text-7xl">
               Got a system that doesn&apos;t work?
               <span className="mt-2 block text-lime">Let&apos;s take it apart.</span>
@@ -261,7 +261,7 @@ export default function Home() {
       <footer className="border-t border-line">
         <div className="wrap flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
           <span className="label label-lime">Business / Technology / Operations</span>
-          <span className="label hidden md:inline">1.3521° N / 103.8198° E</span>
+          <span className="label hidden md:inline">Singapore</span>
           <span className="label">© {new Date().getFullYear()} Rexmond Lim</span>
         </div>
       </footer>

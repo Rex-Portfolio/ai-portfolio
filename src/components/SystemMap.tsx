@@ -46,7 +46,7 @@ export default function SystemMap() {
   return (
     <div className="panel relative overflow-hidden bg-surface/80 backdrop-blur-sm">
       <div className="flex items-center justify-between border-b border-line px-5 py-3">
-        <span className="label">System / 001 · Credit underwriting</span>
+        <span className="label">System / 001 · Underwriting</span>
         <span className="flex items-center gap-2">
           <span className="dot-live" aria-hidden="true" />
           <span className="label label-lime">Live</span>
@@ -64,7 +64,7 @@ export default function SystemMap() {
               setAuto(false);
               setView(v);
             }}
-            className={`flex-1 rounded-[4px] py-2 font-mono text-[0.6875rem] uppercase tracking-[0.14em] transition-colors duration-200 ${
+            className={`flex-1 rounded-[4px] py-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] transition-colors duration-200 ${
               view === v ? (v === "after" ? "bg-lime text-bg" : "bg-signal-soft text-signal") : "text-muted hover:text-ink"
             }`}
           >
@@ -86,7 +86,7 @@ export default function SystemMap() {
                 />
               )}
               <span
-                className={`relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full border font-mono text-[0.625rem] ${
+                className={`relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full border font-mono text-[0.6875rem] ${
                   after
                     ? "border-lime bg-lime-soft text-lime"
                     : step.flag
@@ -98,7 +98,7 @@ export default function SystemMap() {
               </span>
               <span className="flex-1 text-sm">{step.name}</span>
               {step.flag && (
-                <span className="rounded-[3px] border border-signal/40 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-wider text-signal">
+                <span className="rounded-[3px] border border-signal/40 px-1.5 py-0.5 font-mono text-[0.6875rem] uppercase tracking-wider text-signal">
                   {step.flag}
                 </span>
               )}
@@ -116,7 +116,8 @@ export default function SystemMap() {
               after ? "text-lime" : "text-signal"
             }`}
           >
-            {current.time} <span className="text-sm font-normal text-muted">per application</span>
+            {current.time}
+            <span className="block text-sm font-normal tracking-normal text-muted sm:ml-2 sm:inline">per application</span>
           </p>
         </div>
         <div className="px-5 py-3.5">

@@ -12,6 +12,12 @@ const initialForm = {
   website: "", // honeypot, hidden from people
 };
 
+const ACTOR_STYLE = {
+  AI: "border-lime bg-lime text-bg",
+  System: "border-line-strong text-ink",
+  Person: "border-line text-muted",
+};
+
 const LEVELS = [
   { id: "PROCESS", label: "Fix the process" },
   { id: "AUTOMATION", label: "Simple automation" },
@@ -98,7 +104,7 @@ export default function DiagnosticForm() {
             type="button"
             aria-pressed={exampleId === example.id}
             onClick={() => showExample(example)}
-            className="rounded-full border border-line px-3.5 py-1.5 text-xs text-muted transition-colors hover:border-line-strong hover:text-ink aria-pressed:border-lime aria-pressed:bg-lime-soft aria-pressed:text-ink"
+            className="min-h-10 rounded-full border border-line px-3.5 py-2 text-xs text-muted transition-colors hover:border-line-strong hover:text-ink aria-pressed:border-lime aria-pressed:bg-lime-soft aria-pressed:text-ink"
           >
             {example.label}
           </button>
@@ -236,11 +242,31 @@ export default function DiagnosticForm() {
                 </Section>
               )}
 
+              {result.flow && result.flow.length > 0 && (
+                <Section title="How it works">
+                  <ol className="space-y-2.5">
+                    {result.flow.map((step, i) => (
+                      <li key={i} className="grid grid-cols-[1.25rem_4.25rem_1fr] items-start gap-2">
+                        <span className="font-mono text-xs leading-6 text-dim">{i + 1}</span>
+                        <span
+                          className={`mt-0.5 rounded-[3px] border px-1.5 py-0.5 text-center font-mono text-[0.6875rem] uppercase tracking-wider ${
+                            ACTOR_STYLE[step.actor] ?? "border-line text-dim"
+                          }`}
+                        >
+                          {step.actor ?? "Step"}
+                        </span>
+                        <span>{step.text}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </Section>
+              )}
+
               {result.plan && result.plan.length > 0 && (
                 <Section title="90-day plan">
                   <ol className="space-y-2">
                     {result.plan.map((step, i) => (
-                      <li key={i} className="grid grid-cols-[4.5rem_1fr] gap-3">
+                      <li key={i} className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr]">
                         <span className="font-mono text-xs leading-6 text-lime">{step.day ? `Day ${step.day}` : ""}</span>
                         <span>{step.text}</span>
                       </li>

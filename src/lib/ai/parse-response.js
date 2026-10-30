@@ -7,6 +7,7 @@
  *   problem?: string;
  *   verdict?: { level: VerdictLevel | null; reason: string };
  *   fixFirst?: string;
+ *   flow?: Array<{ actor: "AI" | "System" | "Person" | null; text: string }>;
  *   plan?: Array<{ day: string; text: string }>;
  *   changeRisk?: string;
  *   kpis?: string[];
@@ -19,6 +20,7 @@ const KEYS = /** @type {const} */ ({
   PROBLEM: "problem",
   VERDICT: "verdict",
   "FIX FIRST": "fixFirst",
+  "HOW IT WORKS": "flow",
   PLAN: "plan",
   "CHANGE RISK": "changeRisk",
   KPIS: "kpis",
@@ -72,6 +74,14 @@ export function parseDiagnosis(text) {
     };
   }
   if (raw.fixFirst) result.fixFirst = body("fixFirst");
+  if (raw.flow) {
+    result.flow = lines("flow").map((l) => {
+      const step = l.replace(/^\d+[.)]\s*/, "");
+      const tag = step.match(/^(AI|System|Person)\s*:\s*/i);
+      const actor = tag ? /** @type {"AI" | "System" | "Person"} */ (tag[1].toUpperCase() === "AI" ? "AI" : tag[1][0].toUpperCase() + tag[1].slice(1).toLowerCase()) : null;
+      return { actor, text: tag ? step.slice(tag[0].length) : step };
+    });
+  }
   if (raw.plan) {
     result.plan = lines("plan").map((l) => {
       const m = l.match(/^(30|60|90)\s*:\s*(.*)$/);

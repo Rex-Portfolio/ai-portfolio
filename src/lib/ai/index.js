@@ -1,17 +1,16 @@
-import { generateDiagnosis as anthropicGenerateDiagnosis } from "./anthropic.js";
+import { streamDiagnosis as anthropicStreamDiagnosis } from "./anthropic.js";
 
 /** @typedef {import("./prompt.js").DiagnosisInput} DiagnosisInput */
-/** @typedef {import("./parse-response.js").DiagnosisResult} DiagnosisResult */
+/** @typedef {(input: DiagnosisInput, signal?: AbortSignal) => AsyncGenerator<string>} DiagnosisStream */
 
-/** @type {Record<string, (input: DiagnosisInput) => Promise<DiagnosisResult>>} */
+/** @type {Record<string, DiagnosisStream>} */
 const providers = {
-  anthropic: anthropicGenerateDiagnosis,
-  // openai: openaiGenerateDiagnosis, // swap in when needed
+  anthropic: anthropicStreamDiagnosis,
 };
 
 /**
  * @param {string} [name]
- * @returns {(input: DiagnosisInput) => Promise<DiagnosisResult>}
+ * @returns {DiagnosisStream}
  */
 export function getAIProvider(name = process.env.AI_PROVIDER ?? "anthropic") {
   const provider = providers[name];

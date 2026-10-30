@@ -1,11 +1,12 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Rexmond Lim, AI & Business Transformation";
+export const alt = "REXMOND / SYSTEMS. Every business has a system. Not every system works.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 // Generated at build time; shown when the site link is shared.
 export default function Image() {
+  const lime = "#d4ff3a";
   return new ImageResponse(
     (
       <div
@@ -14,31 +15,34 @@ export default function Image() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          padding: "0 96px",
-          background:
-            "radial-gradient(ellipse 80% 70% at 20% 0%, rgba(79,110,247,0.28) 0%, #0d0d0f 65%)",
-          backgroundColor: "#0d0d0f",
-          color: "#e8e8e8",
+          justifyContent: "space-between",
+          padding: "64px 80px",
+          backgroundColor: "#0b0c0a",
+          backgroundImage:
+            "linear-gradient(rgba(236,239,230,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(236,239,230,0.07) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          color: "#ecefe6",
         }}
       >
-        <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: "-0.04em" }}>
-          Rexmond Lim
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 24, letterSpacing: 4 }}>
+          <span style={{ color: lime }}>REXMOND / SYSTEMS</span>
+          <span style={{ color: "#9aa08f" }}>BUSINESS / TECHNOLOGY / OPERATIONS</span>
         </div>
         <div
           style={{
-            marginTop: 20,
-            fontSize: 28,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "#4f6ef7",
+            display: "flex",
+            flexDirection: "column",
+            fontSize: 84,
+            fontWeight: 700,
+            lineHeight: 1.02,
+            letterSpacing: -3,
           }}
         >
-          AI & Business Transformation
+          <span>EVERY BUSINESS HAS A SYSTEM.</span>
+          <span style={{ color: lime }}>NOT EVERY SYSTEM WORKS.</span>
         </div>
-        <div style={{ marginTop: 36, fontSize: 34, color: "#9ca3af", maxWidth: 900 }}>
-          Strategy and hands-on AI delivery that replaces manual workflows with
-          measurable results.
+        <div style={{ display: "flex", fontSize: 30, color: "#9aa08f" }}>
+          Rexmond Lim · Diagnose. Design. Transform. Measure.
         </div>
       </div>
     ),

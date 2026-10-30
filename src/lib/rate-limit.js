@@ -1,8 +1,14 @@
 const DEFAULT_LIMIT = 5;
 const DEFAULT_WINDOW_MS = 60_000;
+const DAILY_CAP = Number(process.env.DIAGNOSE_DAILY_CAP) || 100;
 
 /** @type {Map<string, { count: number; resetAt: number }>} */
 const hits = new Map();
+
+// These counters live in server memory, so on serverless hosting they are
+// per instance and reset on cold starts. A spend limit in the Anthropic
+// Console is the hard ceiling; these just keep normal traffic cheap.
+let daily = { day: "", count: 0 };
 
 /**
  * @param {Request} request
@@ -45,6 +51,22 @@ export function checkRateLimit(
 
   entry.count += 1;
   return { allowed: true, remaining: limit - entry.count };
+}
+
+/**
+ * Counts one model call against the site-wide daily cap.
+ * @returns {boolean} false when today's cap is used up
+ */
+export function takeDailyBudget() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (daily.day !== today) {
+    daily = { day: today, count: 0 };
+  }
+  if (daily.count >= DAILY_CAP) {
+    return false;
+  }
+  daily.count += 1;
+  return true;
 }
 
 /**

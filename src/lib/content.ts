@@ -22,7 +22,7 @@ export const principles = [
 export const outcomes = [
   { label: "Credit underwriting", before: "Half a day", after: "2 mins" },
   { label: "Customer onboarding", before: "Half a day", after: "90 secs" },
-  { label: "Support operating cost", before: "Baseline", after: "−96%" },
+  { label: "Support cost", before: "Baseline", after: "−96%" },
   { label: "Group reporting", before: "1 week", after: "10 mins" },
 ];
 

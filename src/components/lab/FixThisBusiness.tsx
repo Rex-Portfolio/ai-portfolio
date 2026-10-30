@@ -18,6 +18,7 @@ import { scenarios } from "@/lib/lab/scenarios";
 const METHOD = ["Assess", "Diagnose", "Strategise", "Design", "Adopt", "Transform", "Optimise"];
 // How far along the methodology each stage lights up.
 const METHOD_PROGRESS = [1, 2, 4, 5, 7];
+const STAGE_NAMES = ["Assess", "Diagnose", "Strategise", "Adopt", "Results"];
 
 const VERDICT_STYLE: Record<Verdict, { label: string; box: string; text: string }> = {
   root: { label: "Root cause", box: "border-lime/40 bg-lime-soft", text: "label-lime" },
@@ -80,12 +81,14 @@ export default function FixThisBusiness() {
   return (
     <div ref={topRef} className="panel scroll-mt-20 overflow-hidden">
       {/* Header + methodology rail */}
-      <div className="flex flex-col gap-4 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 border-b border-line px-4 py-3.5 sm:flex-row sm:px-7 sm:py-4 sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between gap-3 sm:justify-start">
           <span className="label label-lime">{scenario.name}</span>
-          <span className="label">{String(stage + 1).padStart(2, "0")} / 05</span>
+          <span className="label">
+            {String(stage + 1).padStart(2, "0")} / 05<span className="text-ink sm:hidden">{` · ${STAGE_NAMES[stage]}`}</span>
+          </span>
         </div>
-        <ol className="flex flex-wrap gap-x-1 gap-y-1" aria-label="Transformation method">
+        <ol className="hidden flex-wrap gap-x-1 gap-y-1 sm:flex" aria-label="Transformation method">
           {METHOD.map((step, i) => (
             <li key={step} className="flex items-center gap-1">
               <span
@@ -101,14 +104,14 @@ export default function FixThisBusiness() {
         </ol>
       </div>
 
-      <div key={`${scenario.id}-${stage}`} className="fade-swap px-5 py-7 sm:px-7 sm:py-9" aria-live="polite">
+      <div key={`${scenario.id}-${stage}`} className="fade-swap px-4 py-6 sm:px-7 sm:py-9" aria-live="polite">
         {stage === 0 && (
           <div>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <h3 className="display text-4xl sm:text-6xl">Fix this business.</h3>
               <button
                 type="button"
-                className="label pt-2 transition-colors hover:text-lime"
+                className="label -my-1 inline-flex min-h-10 items-center transition-colors hover:text-lime sm:pt-2"
                 onClick={() => restart(randomOther(scenario.id))}
               >
                 Different company ↻
@@ -118,14 +121,14 @@ export default function FixThisBusiness() {
               You&apos;ve inherited <span className="text-ink">{scenario.name}</span>, {scenario.blurb}
             </p>
 
-            <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line lg:grid-cols-4">
+            <dl className="mt-8 grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
               {scenario.metrics.map((m) => (
-                <div key={m.key} className="bg-surface p-4 sm:p-5">
+                <div key={m.key} className="grid grid-cols-[1fr_auto] gap-x-4 bg-surface p-4 sm:block sm:p-5">
                   <dt className="label">{m.label}</dt>
-                  <dd className="mt-2 font-display text-3xl font-semibold tracking-tight text-signal sm:text-4xl">
+                  <dd className="col-start-2 row-span-2 row-start-1 self-center font-display text-3xl font-semibold tracking-tight text-signal sm:mt-2 sm:text-4xl">
                     {formatMetric(m, m.start)}
                   </dd>
-                  <dd className="mt-2 text-xs leading-relaxed text-dim">{m.hint}</dd>
+                  <dd className="mt-1.5 text-xs leading-relaxed text-dim sm:mt-2">{m.hint}</dd>
                 </div>
               ))}
             </dl>
@@ -158,7 +161,7 @@ export default function FixThisBusiness() {
               ))}
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="actions mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-dim">
                 Illustrative simulation with fictional companies and figures. There&apos;s more than one good answer.
               </p>
@@ -210,7 +213,7 @@ export default function FixThisBusiness() {
               </div>
             )}
 
-            <div className="mt-7 flex flex-wrap justify-between gap-3">
+            <div className="actions mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <button type="button" className="btn btn-ghost" onClick={() => go(0)}>
                 ← Back
               </button>
@@ -261,7 +264,7 @@ export default function FixThisBusiness() {
               })}
             </div>
 
-            <div className="mt-7 flex flex-wrap justify-between gap-3">
+            <div className="actions mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <button type="button" className="btn btn-ghost" onClick={() => go(1)}>
                 ← Back
               </button>
@@ -296,9 +299,9 @@ export default function FixThisBusiness() {
                           : "border-signal/40 bg-signal-soft"
                     }`}
                   >
-                    <p className="flex items-baseline justify-between gap-3">
+                    <p className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
                       <span className="font-medium">{person.name}</span>
-                      <span className="label text-right !text-[0.625rem]">{person.role}</span>
+                      <span className="label !text-[0.6875rem] sm:text-right">{person.role}</span>
                     </p>
                     <p className="mt-2 text-sm leading-relaxed text-muted">&ldquo;{person.quote}&rdquo;</p>
                     <p
@@ -352,7 +355,7 @@ export default function FixThisBusiness() {
               <p className="mt-2 text-xs text-dim">A solution nobody uses delivers nothing. Results scale with adoption.</p>
             </div>
 
-            <div className="mt-7 flex flex-wrap justify-between gap-3">
+            <div className="actions mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <button type="button" className="btn btn-ghost" onClick={() => go(2)}>
                 ← Back
               </button>
@@ -376,7 +379,7 @@ export default function FixThisBusiness() {
                 <div>
                   <p className="label">Adoption</p>
                   <p
-                    className={`font-display text-6xl font-semibold tracking-tight ${
+                    className={`font-display text-5xl font-semibold tracking-tight sm:text-6xl ${
                       outcome.adoption >= ADOPTION_STICKS ? "text-ink" : "text-signal"
                     }`}
                   >
@@ -385,7 +388,7 @@ export default function FixThisBusiness() {
                 </div>
                 <div>
                   <p className="label">Transformation score</p>
-                  <p className="font-display text-6xl font-semibold tracking-tight text-lime">{outcome.score}</p>
+                  <p className="font-display text-5xl font-semibold tracking-tight text-lime sm:text-6xl">{outcome.score}</p>
                 </div>
               </div>
             </div>
@@ -438,7 +441,7 @@ export default function FixThisBusiness() {
                           className={`h-1.5 w-1.5 shrink-0 rounded-full ${n.good ? "bg-lime" : "bg-signal"}`}
                           aria-hidden="true"
                         />
-                        <span className="label !text-[0.625rem]">Change</span>
+                        <span className="label !text-[0.6875rem]">Change</span>
                         {n.title}
                       </p>
                       <p className="mt-1 text-sm leading-relaxed text-muted">{n.lesson}</p>
@@ -509,11 +512,11 @@ export default function FixThisBusiness() {
               </p>
             </div>
 
-            <div className="mt-7 flex flex-wrap justify-between gap-3">
+            <div className="actions mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <button type="button" className="btn btn-ghost" onClick={() => go(3)}>
                 ← Change the rollout
               </button>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row">
                 <button type="button" className="btn btn-ghost" onClick={() => restart(scenario)}>
                   Try again <span className="arrow">↺</span>
                 </button>

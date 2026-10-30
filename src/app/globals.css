@@ -113,6 +113,7 @@ body {
   letter-spacing: -0.035em;
   line-height: 0.98;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .section-title {
@@ -121,6 +122,7 @@ body {
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.02;
+  text-wrap: balance;
 }
 
 /* ---------- surfaces ---------- */
@@ -212,9 +214,17 @@ a:hover > .arrow {
 }
 
 .option[aria-pressed="true"],
-.option[aria-selected="true"] {
+.option[aria-selected="true"],
+.option[aria-expanded="true"] {
   border-color: var(--lime);
   background: var(--lime-soft);
+}
+
+/* Action rows: full-width, stacked buttons on phones. */
+@media (max-width: 639px) {
+  .actions .btn {
+    width: 100%;
+  }
 }
 
 /* ---------- small pieces ---------- */

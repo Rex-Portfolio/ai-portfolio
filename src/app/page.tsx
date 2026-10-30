@@ -109,7 +109,7 @@ export default function Home() {
             <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-7 lg:grid-cols-4">
               {outcomes.map((o) => (
                 <div key={o.label}>
-                  <dt className="label !text-[0.625rem]">{o.label}</dt>
+                  <dt className="label min-h-[2.4em] !text-[0.6875rem] leading-tight">{o.label}</dt>
                   <dd className="mt-2">
                     <span className="block font-mono text-xs text-dim line-through">{o.before}</span>
                     <span className="font-display text-3xl font-semibold tracking-tight text-lime sm:text-4xl">

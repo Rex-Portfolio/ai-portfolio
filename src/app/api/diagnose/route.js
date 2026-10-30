@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAIProvider } from "@/lib/ai";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { LIMITS } from "@/lib/diagnose-limits";
 
 /**
  * @param {unknown} body
@@ -21,7 +22,10 @@ function parseRequestBody(body) {
     typeof teamSize !== "string" ||
     !teamSize.trim() ||
     typeof problem !== "string" ||
-    !problem.trim()
+    !problem.trim() ||
+    industry.length > LIMITS.industry ||
+    teamSize.length > LIMITS.teamSize ||
+    problem.length > LIMITS.problem
   ) {
     return null;
   }
@@ -65,7 +69,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         error:
-          "Invalid request body. Expected { industry: string, teamSize: string, problem: string }",
+          `Invalid request. Fill in all fields (problem up to ${LIMITS.problem} characters).`,
       },
       { status: 400 },
     );

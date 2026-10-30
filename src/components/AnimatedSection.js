@@ -1,34 +1,58 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
-const transition = { duration: 0.5, ease: [0.22, 1, 0.36, 1] };
+/** @type {IntersectionObserver | null} */
+let observer = null;
+
+// One shared observer for every reveal on the page; each element is
+// revealed once and then unobserved.
+function getObserver() {
+  if (!observer) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer?.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -6% 0px" },
+    );
+  }
+  return observer;
+}
+
+/** @param {number} delay */
+function useReveal(delay) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    if (!("IntersectionObserver" in window)) {
+      element.classList.add("is-visible");
+      return;
+    }
+    const io = getObserver();
+    io.observe(element);
+    return () => io.unobserve(element);
+  }, []);
+
+  return { ref, style: delay ? { "--reveal-delay": `${delay}s` } : undefined };
+}
 
 /**
  * @param {{ children: React.ReactNode; className?: string; id?: string; delay?: number }} props
  */
 export default function AnimatedSection({ children, className = "", id, delay = 0 }) {
-  const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return (
-      <section id={id} className={className}>
-        {children}
-      </section>
-    );
-  }
+  const { ref, style } = useReveal(delay);
 
   return (
-    <motion.section
-      id={id}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-8% 0px" }}
-      transition={{ ...transition, delay }}
-      className={className}
-    >
+    <section ref={ref} id={id} style={style} className={`reveal reveal-section ${className}`}>
       {children}
-    </motion.section>
+    </section>
   );
 }
 
@@ -36,21 +60,11 @@ export default function AnimatedSection({ children, className = "", id, delay = 
  * @param {{ children: React.ReactNode; className?: string; delay?: number }} props
  */
 export function AnimatedReveal({ children, className = "", delay = 0 }) {
-  const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return <div className={className}>{children}</div>;
-  }
+  const { ref, style } = useReveal(delay);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-4% 0px" }}
-      transition={{ ...transition, duration: 0.45, delay }}
-      className={className}
-    >
+    <div ref={ref} style={style} className={`reveal ${className}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }

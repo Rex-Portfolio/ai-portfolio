@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LIMITS } from "@/lib/diagnose-limits";
 
 const initialForm = {
   industry: "",
@@ -63,6 +64,7 @@ export default function DiagnosticForm() {
             required
             value={form.industry}
             onChange={handleChange}
+            maxLength={LIMITS.industry}
             placeholder="e.g. B2B SaaS, Healthcare, Logistics"
             className={inputClassName}
           />
@@ -79,6 +81,7 @@ export default function DiagnosticForm() {
             required
             value={form.teamSize}
             onChange={handleChange}
+            maxLength={LIMITS.teamSize}
             placeholder="e.g. 15, 50-100"
             className={inputClassName}
           />
@@ -93,6 +96,7 @@ export default function DiagnosticForm() {
             name="problem"
             required
             rows={4}
+            maxLength={LIMITS.problem}
             value={form.problem}
             onChange={handleChange}
             placeholder="e.g. Our finance team manually compiles reports from 5 systems every month. It takes 3 people about a week, and errors slip through."
@@ -105,16 +109,16 @@ export default function DiagnosticForm() {
         </button>
 
         {error && (
-          <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-300">
+          <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-300">
             {error}
           </p>
         )}
       </form>
 
-      <div className="card-dark flex min-h-[22rem] flex-col p-6 lg:min-h-0 lg:p-7">
+      <div aria-live="polite" aria-busy={loading} className="card-dark flex min-h-[22rem] flex-col p-6 lg:min-h-0 lg:p-7">
         {loading && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            <div aria-hidden="true" className="h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent" />
             <p className="text-sm text-dark-muted">Analysing your problem...</p>
           </div>
         )}

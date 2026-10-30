@@ -1,8 +1,8 @@
 import AnimatedSection, { AnimatedReveal } from "@/components/AnimatedSection";
 import DiagnosticForm from "@/components/DiagnosticForm";
 import StickyNav from "@/components/StickyNav";
+import { LINKEDIN_URL } from "@/lib/site";
 
-const LINKEDIN_URL = "https://linkedin.com/in/rexmondlim";
 const RESUME_URL = "/Rexmond%20Lim%20-%20Resume.pdf";
 const EMAIL = "rexmondlim7@gmail.com";
 

@@ -62,8 +62,8 @@ export const caseStudies: CaseStudy[] = [
     tag: "Decision automation",
     problem: "Every application went through half a day of manual underwriting.",
     build:
-      "Designed and built automated credit scoring on verified MyInfo data, using machine learning to recalibrate the scoring as the applicant mix and repayment behaviour shifted.",
-    stack: ["Singpass/MyInfo API", "AI/ML scoring models", "Proprietary LMS", "React.js"],
+      "Designed and built automated credit scoring on verified MyInfo data. Started with a deterministic rules engine, because rules were the simpler option that worked, then added live machine learning with explainable AI to approve more creditworthy thin-file customers that traditional scorecards reject, with fewer wrong approvals and wrong rejections.",
+    stack: ["Singpass/MyInfo API", "Rules engine", "Machine learning", "Explainable AI (XAI)", "Proprietary LMS", "React.js"],
     result: "Underwriting time cut from half a day to under 2 minutes per application.",
     landed:
       "Ran the automated scores in parallel with manual underwriting until the credit team agreed with the engine's calls, then made it the default.",
